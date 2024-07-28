@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Canvas Drawing</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            background-color: #F5F5F5;
+            display: block;
+            margin: 20px auto;
+        }
+        .tool-bar {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .tool-bar button {
+            margin: 0 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+        }
+        .tool-bar button.color-button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+        }
+        .tool-bar button.active {
+            background-color: #FFFFE0;
+            border: 1px solid #000000;
+        }
+        .tool-bar button.selected-color {
+            border: 8px solid #FFD700;
+        }
+        .tool-bar .slider {
+            margin: 10px;
+            width: 200px;
+        }
+        .custom-cursor {
+            cursor: url('data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjMwIiB3aWR0aD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgdmVyc2lvbj0iMSIgd2lsdHJhdmVsb3Blbl9mZ24iIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGc+PGNpcmNsZSByPSIxNSIgY3g9IjE1IiBjeT0iMTUiIHN0eWxlPSJmaWxsOmNhcjsiIC8+PC9nPjwvc3ZnPg=='), auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-bar">
+        <button id="pen" class="active">画笔</button>
+        <button id="eraser">橡皮</button>
+        <button id="clear">清除</button><br><br>
+        <button id="black" class="color-button" style="background-color: black; color: white;"></button>
+        <button id="red" class="color-button" style="background-color: red;"></button>
+        <button id="blue" class="color-button" style="background-color: blue; color: white;"></button>
+        <button id="green" class="color-button" style="background-color: green; color: white;"></button>
+        <button id="yellow" class="color-button" style="background-color: yellow;"></button><br><br>
+        <input type="range" id="thicknessSlider" class="slider" min="1" max="50" value="5">
+        <span id="thicknessValue">5</span>
+    </div>
+    <canvas id="drawingCanvas" width="560" height="760"></canvas>
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const penButton = document.getElementById('pen');
+        const eraserButton = document.getElementById('eraser');
+        const clearButton = document.getElementById('clear');
+        const colorButtons = document.querySelectorAll('.color-button');
+        const thicknessSlider = document.getElementById('thicknessSlider');
+        const thicknessValue = document.getElementById('thicknessValue');
+
+        let drawing = false;
+        let mode = 'pen';
+        let previousMode = 'pen';
+        let currentColor = 'black';
+        let currentThickness = 5;
+
+        const lineWidth = {
+            pen: 5,
+            eraser: 30
+        };
+
+        penButton.addEventListener('click', () => setMode('pen'));
+        eraserButton.addEventListener('click', () => setMode('eraser'));
+        clearButton.addEventListener('click', clearCanvas);
+
+        colorButtons.forEach(button => {
+            button.addEventListener('click', () => setColor(button.style.backgroundColor, button));
+        });
+
+        thicknessSlider.addEventListener('input', (event) => {
+            currentThickness = event.target.value;
+            thicknessValue.textContent = currentThickness;
+            lineWidth.pen = currentThickness;
+            lineWidth.eraser = currentThickness;
+        });
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchmove', drawTouch);
+        canvas.addEventListener('contextmenu', (event) => event.preventDefault());
+        canvas.addEventListener('mousedown', (event) => {
+            if (event.button === 2) {
+                previousMode = mode;
+                setMode('eraser');
+                startDrawing(event);
+            }
+        });
+        canvas.addEventListener('mouseup', (event) => {
+            if (event.button === 2) {
+                setMode(previousMode);
+                stopDrawing();
+            }
+        });
+
+        function setMode(newMode) {
+            mode = newMode;
+            updateActiveButton();
+            canvas.classList.toggle('custom-cursor', mode === 'eraser');
+        }
+
+        function setColor(color, button) {
+            currentColor = color;
+            updateActiveColorButton(button);
+            setMode('pen');
+        }
+
+        function startDrawing(event) {
+            drawing = true;
+            draw(event);
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(event) {
+            if (!drawing) return;
+            const { clientX, clientY } = event.touches ? event.touches[0] : event;
+
+            ctx.lineWidth = mode === 'eraser' ? lineWidth.eraser : lineWidth.pen;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = mode === 'eraser' ? 'white' : currentColor;
+            ctx.globalCompositeOperation = mode === 'eraser' ? 'destination-out' : 'source-over';
+
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            event.preventDefault();
+        }
+
+        function drawTouch(event) {
+            draw(event);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function updateActiveButton() {
+            [penButton, eraserButton, clearButton].forEach(button => button.classList.remove('active'));
+            document.getElementById(mode).classList.add('active');
+        }
+
+        function updateActiveColorButton(activeButton) {
+            colorButtons.forEach(button => button.classList.remove('selected-color'));
+            activeButton.classList.add('selected-color');
+        }
+    </script>
+</body>
+</html>

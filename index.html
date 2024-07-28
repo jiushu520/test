@@ -5,86 +5,220 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>玖数学</title>
     <style>
+        :root {
+            --primary-color: #0288d1;
+            --secondary-color: #ffeb3b;
+            --background-color: #e0f7fa;
+            --text-color: #000;
+            --border-color: #ccc;
+            --hover-color: #fdd835;
+        }
+
         body {
             display: flex;
             flex-direction: column;
             height: 100vh;
             margin: 0;
-            background-color: #e0f7fa; /* 浅蓝色背景 */
+            background-color: var(--background-color);
+            font-family: Arial, sans-serif;
         }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(224, 247, 250, 0.9);
+            z-index: 1000;
+        }
+
+        .login-box {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
         .top {
-            border: 1px solid #000;
-            padding: 0px; /* 减小padding以减少高度 */
-            box-sizing: border-box;
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 50px; /* 设置一个固定的高度 */
+            background-color: var(--primary-color);
+            color: white;
         }
+
+        .top h3 {
+            margin: 0;
+        }
+
+        .menu-link {
+            margin-left: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: color 0.3s;
+        }
+
+        .menu-link:hover {
+            color: var(--secondary-color);
+        }
+
+        .blue-button {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .blue-button:hover {
+            background-color: var(--hover-color);
+        }
+
         .main {
             display: flex;
             flex-grow: 1;
-            height: calc(100vh - 50px); /* 剩余高度填充 */
         }
+
         .content, .right {
-            padding: 0px;
-            box-sizing: border-box;
-            border: 0px solid #fff;
-            height: 100%; /* 使其高度为父容器高度 */
+            height: 100%;
         }
+
         .content {
-            flex: 7; /* 做题界面占70% */
+            flex: 1;
+            transition: flex-basis 0.3s;
         }
+
         .right {
-            flex: 3; /* 人工智能回复界面占30% */
-            transition: flex 0.3s; /* 增加过渡效果 */
+            flex: 1;
+            transition: flex-basis 0.3s;
         }
-        .menu-link {
-            margin-left: 10px;
-            cursor: pointer;
-            text-decoration: none;
-            color: black;
-        }
+
         iframe {
             width: 100%;
             height: 100%;
             border: 0;
         }
+
         .hidden {
-            display: none; /* 隐藏元素 */
+            display: none;
         }
-        .blue-button {
-            background-color: #2196F3; /* 蓝色背景 */
-            color: white; /* 白色文字 */
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
+
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #loginForm input {
+            margin: 5px;
+            padding: 5px;
+            border: 1px solid var(--border-color);
             border-radius: 5px;
+        }
+
+        #loginForm button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+        }
+
+        .width-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .width-controls input {
+            width: 80%;
+            margin: 0;
         }
     </style>
 </head>
 <body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="用户名">
+                <input type="password" id="password" placeholder="密码">
+                <button type="button" onclick="login()">登录</button>
+                <div id="error-message" style="color: red; display: none;">用户名或密码错误</div>
+            </form>
+        </div>
+    </div>
     <div class="top">
         <h3>玖数学</h3>
         <div>
+            <a href="javascript:void(0);" class="menu-link" onclick="showRightContent('画布.html')">草稿</a>
+            <a href="javascript:void(0);" class="menu-link" onclick="showRightContent('https://www.geogebra.org/classic')">ggb</a>
+            <a href="javascript:void(0);" class="menu-link" onclick="window.open('https://jiushu520.github.io/geogebra/', '_blank')">ggb指令</a>
             <a href="javascript:void(0);" class="menu-link" onclick="showRightContent('jiushuai.html')">玖数学问</a>
-            <a href="javascript:void(0);" class="menu-link" onclick="showRightContent('jiushudsai.html')">深度求索</a>
-            <a href="javascript:void(0);" class="menu-link" onclick="showRightContent('jiushudgtp4-o.html')">玖数求索</a>
+            <a href="javascript:void(0);" class="menu-link" onclick="showRightContent('jiushudgtp4omini.html')">玖数求索</a>
             <a href="javascript:void(0);" class="menu-link" onclick="showRightContent('jiushuopenai.html')">玖数智能</a>
             <button class="blue-button" onclick="toggleRightContent()">切换人工智能</button>
         </div>
     </div>
+    <div class="width-controls">
+        <label for="width-range"></label>
+        <input type="range" id="width-range" min="10" max="90" value="65" oninput="adjustWidth()">
+    </div>
     <div class="main">
-        <div class="content" id="content">
+        <div class="content" id="content" style="flex-basis: 65%;">
             <iframe src="https://jiushu520.github.io/tiku/" frameborder="0"></iframe>
         </div>
-        <div class="right" id="right-content">
+        <div class="right" id="right-content" style="flex-basis: 35%;">
             <iframe src="jiushudgtp4-o.html" frameborder="0"></iframe>
         </div>
     </div>
+    <script src="accounts.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('loggedIn') === 'true') {
+                document.getElementById('loginContainer').style.display = 'none';
+            }
+            adjustWidth(); // 初始设置容器宽度
+        });
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (!username || !password) {
+                showErrorMessage('请输入用户名和密码');
+                return;
+            }
+            if (accounts[username] && accounts[username] === password) {
+                localStorage.setItem('loggedIn', 'true');
+                document.getElementById('loginContainer').style.display = 'none';
+            } else {
+                showErrorMessage('用户名或密码错误');
+            }
+        }
+
+        function showErrorMessage(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
         function showRightContent(url) {
-            document.getElementById('right-content').innerHTML = `<iframe src="${url}" frameborder="0"></iframe>`;
+            const rightContent = document.getElementById('right-content');
+            rightContent.classList.remove('hidden');
+            adjustWidth();
+            rightContent.innerHTML = `<iframe src="${url}" frameborder="0"></iframe>`;
         }
 
         function toggleRightContent() {
@@ -92,13 +226,22 @@
             const content = document.getElementById('content');
             if (rightContent.classList.contains('hidden')) {
                 rightContent.classList.remove('hidden');
-                content.style.flex = '7'; // 保留70%给做题界面
-                rightContent.style.flex = '3'; // 30%给人工智能回复界面
+                adjustWidth();
             } else {
                 rightContent.classList.add('hidden');
-                content.style.flex = '1'; // 扩展做题界面宽度
-                rightContent.style.flex = '0'; // 隐藏人工智能回复界面
+                content.style.flexBasis = '100%';
+                rightContent.style.flexBasis = '0';
             }
+        }
+
+        function adjustWidth() {
+            const widthRange = document.getElementById('width-range').value;
+            const content = document.getElementById('content');
+            const rightContent = document.getElementById('right-content');
+            const leftWidth = widthRange;
+            const rightWidth = 100 - widthRange;
+            content.style.flexBasis = `${leftWidth}%`;
+            rightContent.style.flexBasis = `${rightWidth}%`;
         }
     </script>
 </body>
